@@ -1,0 +1,14 @@
+spring:
+  cloud:
+    discovery:
+      enabled: false
+
+eureka:
+  client:
+    enabled: false
+
+app:
+  jwt:
+    secret: test-secret-test-secret-test-secret-0123456789
+  seed:
+    enabled: false

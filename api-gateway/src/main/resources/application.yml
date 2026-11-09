@@ -1,0 +1,49 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          httpclient:
+            connect-timeout: 2000
+            # бронирование может занимать несколько секунд: сага повторяет вызовы сервиса отелей
+            response-timeout: 30s
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 15
+
+app:
+  jwt:
+    # Общий секрет HS256 (не короче 32 байт), одинаковый во всех сервисах. Переопределяется через JWT_SECRET.
+    secret: ${JWT_SECRET:dev-only-shared-secret-change-me-0123456789abcdef}
+
+# Объединённый Swagger UI: /swagger-ui.html. Документы отдают сами сервисы через путь /docs/**.
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: Сервис бронирований
+        url: /docs/booking/v3/api-docs
+      - name: Сервис управления отелями
+        url: /docs/hotel/v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    ru.mephi.hotelbooking.gateway: INFO

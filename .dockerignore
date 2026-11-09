@@ -1,0 +1,7 @@
+**/target/
+.git/
+.idea/
+.vscode/
+.m2-cache/
+*.iml
+.DS_Store

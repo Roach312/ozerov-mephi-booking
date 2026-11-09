@@ -1,0 +1,24 @@
+eureka:
+  client:
+    enabled: false
+
+app:
+  jwt:
+    secret: test-secret-test-secret-test-secret-0123456789
+  admin:
+    enabled: false
+
+# Короткие тайм-ауты и паузы делают сценарии сбоев быстрыми.
+hotel:
+  client:
+    base-url: http://hotel-service
+    connect-timeout: 500ms
+    read-timeout: 500ms
+    max-attempts: 3
+    initial-backoff: 10ms
+    backoff-multiplier: 2.0
+    max-backoff: 50ms
+
+booking:
+  reaper:
+    enabled: false

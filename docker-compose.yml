@@ -1,0 +1,64 @@
+# Платформа бронирования отелей: Eureka + API Gateway + сервис управления отелями + сервис бронирований.
+#
+#   docker compose up --build
+#
+# Точка входа для клиентов:        http://localhost:8080   (API Gateway)
+# Swagger UI (объединённый):       http://localhost:8080/swagger-ui.html
+# Панель Eureka:                   http://localhost:8761
+# Сервисы напрямую (для отладки):  hotel-service :8081, booking-service :8082
+#
+# Секреты можно переопределить переменными окружения: JWT_SECRET (не короче 32 байт), ADMIN_PASSWORD.
+
+x-common-env: &common-env
+  EUREKA_URL: http://eureka-server:8761/eureka
+  JWT_SECRET: ${JWT_SECRET:-dev-only-shared-secret-change-me-0123456789abcdef}
+
+services:
+  eureka-server:
+    build:
+      context: .
+      dockerfile: eureka-server/Dockerfile
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+
+  hotel-service:
+    build:
+      context: .
+      dockerfile: hotel-service/Dockerfile
+    container_name: hotel-service
+    environment:
+      <<: *common-env
+    depends_on:
+      - eureka-server
+    ports:
+      - "8081:8081"
+
+  booking-service:
+    build:
+      context: .
+      dockerfile: booking-service/Dockerfile
+    container_name: booking-service
+    environment:
+      <<: *common-env
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
+    depends_on:
+      - eureka-server
+      - hotel-service
+    ports:
+      - "8082:8082"
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: api-gateway
+    environment:
+      <<: *common-env
+    depends_on:
+      - eureka-server
+      - hotel-service
+      - booking-service
+    ports:
+      - "8080:8080"

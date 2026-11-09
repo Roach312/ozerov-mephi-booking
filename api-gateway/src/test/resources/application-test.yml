@@ -1,0 +1,7 @@
+eureka:
+  client:
+    enabled: false
+
+app:
+  jwt:
+    secret: test-secret-test-secret-test-secret-0123456789

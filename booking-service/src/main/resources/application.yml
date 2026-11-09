@@ -1,0 +1,78 @@
+server:
+  port: ${SERVER_PORT:8082}
+
+spring:
+  application:
+    name: booking-service
+  datasource:
+    url: jdbc:h2:mem:bookingdb;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=10000
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    show-sql: false
+  mvc:
+    problemdetails:
+      enabled: true
+  # русская локаль для всех ответов: сообщения валидации (Hibernate Validator) и ошибки Spring MVC
+  web:
+    locale: ru
+    locale-resolver: fixed
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 15
+
+app:
+  jwt:
+    # Общий секрет HS256 (не короче 32 байт). В любой реальной среде переопределите через JWT_SECRET.
+    secret: ${JWT_SECRET:dev-only-shared-secret-change-me-0123456789abcdef}
+    expiration: 1h
+    service-token-ttl: 60s
+  admin:
+    # администратор, создаваемый при старте
+    enabled: true
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD:admin12345}
+
+# Вызовы сервиса отелей: тайм-ауты и ограниченное число попыток с экспоненциальной паузой.
+hotel:
+  client:
+    base-url: http://hotel-service
+    connect-timeout: 1s
+    read-timeout: 2s
+    max-attempts: 3
+    initial-backoff: 200ms
+    backoff-multiplier: 2.0
+    max-backoff: 2s
+
+# Фоновое восстановление саги: брошенные PENDING-бронирования и недоставленные release.
+booking:
+  reaper:
+    enabled: true
+    interval-ms: 30000
+    stale-after: 2m
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  pattern:
+    # сквозные идентификаторы в каждой строке лога
+    level: "%5p [corr=%X{correlationId:-}|booking=%X{bookingId:-}|req=%X{requestId:-}]"

@@ -1,0 +1,56 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: hotel-service
+  datasource:
+    url: jdbc:h2:mem:hoteldb;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=10000
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    show-sql: false
+  mvc:
+    problemdetails:
+      enabled: true
+  # русская локаль для всех ответов: сообщения валидации (Hibernate Validator) и ошибки Spring MVC
+  web:
+    locale: ru
+    locale-resolver: fixed
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 15
+
+app:
+  jwt:
+    # Общий секрет HS256 (не короче 32 байт). В любой реальной среде переопределите через JWT_SECRET.
+    secret: ${JWT_SECRET:dev-only-shared-secret-change-me-0123456789abcdef}
+  seed:
+    # демо-данные: отели и номера при старте
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  pattern:
+    # сквозные идентификаторы в каждой строке лога
+    level: "%5p [corr=%X{correlationId:-}|booking=%X{bookingId:-}|req=%X{requestId:-}]"
